@@ -3,7 +3,7 @@ OBJECTS  = $(SOURCES:.c=.o)
 RESULT   = boggle
 
 CC = gcc
-CFLAGS = -g -Wall -Wextra -pedantic -std=c99 -O2
+CFLAGS = -g -Wall -Wextra -pedantic -std=c99 -O3
 RM = rm -f 
 
 .SUFFIXES:
