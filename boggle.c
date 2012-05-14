@@ -47,10 +47,8 @@ typedef uint64_t usedLetters; /* represents a bit array of letters used in the
                                  the letters array */
 
 typedef struct queueEntry {
-  char *letters; /* Letters in the word so far. Note, this may contain extra
-                    letters (which is why numLetters is needed) */
+  char *letters; /* Letters in the word so far */
   int numLetters;
-  int lettersLength; /* The length of the letters array */
   uint64_t usedLetters; /* represents a bit array of letters used in the current
                            boggle word. 0 means unused. The least significant
                            bit refers to the first entry in the letters array */
@@ -97,18 +95,15 @@ static void addToQueueIfValid(boggleQueue *queue, queueEntry prefix,
   if(isValid) {
     queueEntry entry = prefix;
     entry.numLetters++;
-    while(entry.numLetters > entry.lettersLength) {
-      entry.lettersLength *= 2;
-      entry.letters = realloc(entry.letters,
-                              entry.lettersLength * sizeof(*(entry.letters)));
-    }
     char c = board[index];
+    entry.letters = malloc((entry.numLetters + 1) * sizeof(*(entry.letters)));
+    if(prefix.letters)
+      strcpy(entry.letters, prefix.letters);
     entry.letters[entry.numLetters - 1] = c;
+    entry.letters[entry.numLetters] = '\0';
     entry.currentIndex = index;
     entry.currentDict = trieNode_at(prefix.currentDict, c);
     if(!entry.currentDict) {
-      //entry.currentDict = trieNode_put(prefix.currentDict, trieNode_new(), c);
-      //assert(entry.currentDict);
       return;
     }
     uint64_t one = 1;
@@ -136,11 +131,8 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
     for(unsigned col = 0; col<boardSize; col++) {
       queueEntry entry;
       entry.numLetters = 0;
-      entry.lettersLength = 8;
       entry.usedLetters = 0;
-      entry.letters = malloc(entry.lettersLength * sizeof(*(entry.letters)));
-      for(int i=0; i<entry.lettersLength; i++)
-        entry.letters[i] = '\0';
+      entry.letters = NULL;
       entry.currentDict = dict;
       addToQueueIfValid(&queue, entry, row, col, boardSize, board);
     }
@@ -159,9 +151,6 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
       entry.letters[entry.numLetters - 1] = board[entry.currentIndex];
       strncpy(letters, entry.letters, entry.numLetters);
       letters[entry.numLetters] = '\0';
-      printf("entry: %s, entry2: %s current letter: %c\n", letters,
-          entry.letters, board[entry.currentIndex]);
-      //assert(letters[entry.numLetters - 1] == entry.currentLetter + 'a');
       addWord(&words, letters);
     }
 
