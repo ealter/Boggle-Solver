@@ -30,11 +30,6 @@ trieNode *makeDictionary(FILE *fp)
   while(!feof(fp)) {
     char *word = getlineBoggle(fp);
     if(word) {
-      char c;
-      for(char *letter = word; (c = *letter) != '\0'; letter++) {
-        if(!isalpha(c))
-          continue;
-      }
       trieNode_add(dict, word);
     }
   }
