@@ -38,10 +38,10 @@ void trieNode_add(T *trie, char *word)
 {
   char c;
   for(;(c = *word) != '\0' && c != '\n'; word++) {
-    trieNode *node = trieNode_at(trie, c);
+    if(!islower(c))
+      return;
+    trieNode *node = trie->nodes[c - 'a'];
     if(!node) {
-      if(!islower(c))
-        return;
       node = trieNode_new();
       trie->nodes[c - 'a'] = node;
     }
