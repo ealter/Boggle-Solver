@@ -18,13 +18,16 @@ int main(int argc, char *argv[])
   char *letters = argv[1];
   int numLetters = strlen(letters);
   int boardSize = sqrt(numLetters);
+  unsigned minWordLength = boardSize <= 4 ? 3 : 4;
   assert(boardSize * boardSize == numLetters);
   wordList words = solveBoard(dict, letters, boardSize);
   trieNode_free(dict);
   printf("There are %d words\n", words.numWords);
   assert(words.words);
   for(unsigned i=0; i<words.numWords; i++) {
-    puts(words.words[i]);
+    char *word = words.words[i];
+    if(strlen(word) >= minWordLength)
+      puts(word);
   }
   free(words.words);
   return 0;
