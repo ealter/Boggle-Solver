@@ -63,30 +63,20 @@ typedef struct boggleNode {
   struct boggleNode *next;
 } boggleNode;
 
-typedef struct boggleQueue { /* Invariant: head is null iff tail is null */
+typedef struct boggleQueue {
   boggleNode *head;
-  boggleNode *tail;
 } boggleQueue;
 
 static void addQueueEntry(boggleQueue *queue, queueEntry entry) {
-    boggleNode *node = malloc(sizeof(*node));
-    assert(node);
-    node->value = entry;
-    node->next = NULL;
-    if(!queue->head) {
-      queue->head = node;
-      queue->tail = node;
-    }
-    else {
-      queue->tail->next = node;
-      queue->tail = node;
-    }
+  boggleNode *node = malloc(sizeof(*node));
+  assert(node);
+  node->value = entry;
+  node->next = queue->head;
+  queue->head = node;
 }
 
 static queueEntry popQueueEntry(boggleQueue *queue) {
   assert(queue && queue->head);
-  if(queue->head == queue->tail)
-    queue->tail = NULL;
   boggleNode *node = queue->head;
   queue->head = node->next;
   queueEntry entry = node->value;
@@ -141,7 +131,6 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
 
   boggleQueue queue;
   queue.head = NULL;
-  queue.tail = NULL;
   /* Add each letter to the queue */
   for(unsigned row = 0; row<boardSize; row++) {
     for(unsigned col = 0; col<boardSize; col++) {
@@ -167,6 +156,7 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
     if(trieNode_isWord(entry.currentDict)) {
       char *letters = malloc(entry.numLetters + 1);
       assert(letters);
+      entry.letters[entry.numLetters - 1] = board[entry.currentIndex];
       strncpy(letters, entry.letters, entry.numLetters);
       letters[entry.numLetters] = '\0';
       printf("entry: %s, entry2: %s current letter: %c\n", letters,
