@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
     if(strlen(word) >= minWordLength)
       puts(word);
   }
+  for(unsigned i=0; i<words.numWords; i++)
+    free(words.words[i]);
   free(words.words);
   return 0;
 }

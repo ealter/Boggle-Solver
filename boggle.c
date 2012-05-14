@@ -65,10 +65,6 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
   letters[numPrefixLetters] = board[currentIndex];
   letters[numPrefixLetters + 1] = '\0';
 
-  if(trieNode_isWord(currentDict)) {
-    addWord(words, letters);
-  }
-
   const uint64_t one = 1;
   int row, col, index;
   trieNode *dict;
@@ -91,6 +87,13 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
   MOVE( 1,-1);
   MOVE( 1, 0);
   MOVE( 1, 1);
+
+  if(trieNode_isWord(currentDict)) {
+    addWord(words, letters);
+  }
+  else {
+    free(letters);
+  }
 }
 
 wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
