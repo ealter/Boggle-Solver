@@ -46,71 +46,56 @@ typedef uint64_t usedLetters; /* represents a bit array of letters used in the
                                  significant bit refers to the first entry in
                                  the letters array */
 
-typedef struct queueEntry {
-  char *letters; /* Letters in the word so far */
-  int numLetters;
-  uint64_t usedLetters; /* represents a bit array of letters used in the current
-                           boggle word. 0 means unused. The least significant
-                           bit refers to the first entry in the letters array */
-  int currentIndex;
-  trieNode *currentDict;
-} queueEntry;
-
-typedef struct boggleNode {
-  queueEntry value;
-  struct boggleNode *next;
-} boggleNode;
-
-typedef struct boggleQueue {
-  boggleNode *head;
-} boggleQueue;
-
-static void addQueueEntry(boggleQueue *queue, queueEntry entry) {
-  boggleNode *node = malloc(sizeof(*node));
-  assert(node);
-  node->value = entry;
-  node->next = queue->head;
-  queue->head = node;
-}
-
-static queueEntry popQueueEntry(boggleQueue *queue) {
-  assert(queue && queue->head);
-  boggleNode *node = queue->head;
-  queue->head = node->next;
-  queueEntry entry = node->value;
-  free(node);
-  return entry;
-}
-
-static void addToQueueIfValid(boggleQueue *queue, queueEntry prefix,
-                              int row, int col, int boardSize,
-                              char *board)
+static inline bool isValidMove(int row, int col, int boardSize,
+                               uint64_t usedLetters)
 {
   uint64_t one = 1;
   int index = row * boardSize + col;
-  bool isValid = (row >= 0) && (col >= 0) &&
-                 (row < boardSize) && (col < boardSize) &&
-                 !(prefix.usedLetters & (one << index));
-  assert(board);
-  if(isValid) {
-    queueEntry entry = prefix;
-    entry.numLetters++;
-    char c = board[index];
-    entry.letters = malloc((entry.numLetters + 1) * sizeof(*(entry.letters)));
-    if(prefix.letters)
-      strcpy(entry.letters, prefix.letters);
-    entry.letters[entry.numLetters - 1] = c;
-    entry.letters[entry.numLetters] = '\0';
-    entry.currentIndex = index;
-    entry.currentDict = trieNode_at(prefix.currentDict, c);
-    if(!entry.currentDict) {
-      return;
-    }
-    uint64_t one = 1;
-    entry.usedLetters |= one << index;
+  return (row >= 0) && (col >= 0) &&
+         (row < boardSize) && (col < boardSize) &&
+         !(usedLetters & (one << index));
+}
 
-    addQueueEntry(queue, entry);
+static void _solveBoard(trieNode *currentDict, const char *board, unsigned boardSize,
+                        const char *prefix, uint64_t usedLetters, int currentIndex,
+                        wordList *words)
+{
+  if(!currentDict)
+    return;
+  assert(board && words);
+  int numPrefixLetters = prefix ? strlen(prefix) : 0;
+  char *letters = malloc((numPrefixLetters + 2) * sizeof(*letters));
+  if(prefix)
+    strcpy(letters, prefix);
+  letters[numPrefixLetters] = board[currentIndex];
+  letters[numPrefixLetters + 1] = '\0';
+
+  if(trieNode_isWord(currentDict)) {
+    addWord(words, letters);
   }
+
+  const uint64_t one = 1;
+  int row, col, index;
+  trieNode *dict;
+#define MOVE(deltaRow, deltaCol)                                   \
+      row = currentIndex / boardSize + deltaRow;               \
+      col = currentIndex % boardSize + deltaCol;               \
+      index = row * boardSize + col;                           \
+      if(isValidMove(row, col, boardSize, usedLetters)) {   \
+        dict = trieNode_at(currentDict, board[index]);   \
+        if(dict) {                                                 \
+          _solveBoard(dict, board, boardSize, letters,             \
+                      usedLetters | (one << index), index, words); \
+        }                                                          \
+      }
+  MOVE(-1,-1);
+  MOVE(-1, 0);
+  MOVE(-1, 1);
+  MOVE( 0,-1);
+  MOVE( 0, 1);
+  MOVE( 1,-1);
+  MOVE( 1, 0);
+  MOVE( 1, 1);
 }
 
 wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
@@ -124,35 +109,12 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
   words.numWords = 0;
   words.words = calloc(1, words.arraySize * sizeof(*(words.words)));
 
-  boggleQueue queue;
-  queue.head = NULL;
-  /* Add each letter to the queue */
+  uint64_t one = 1;
   for(unsigned row = 0; row<boardSize; row++) {
     for(unsigned col = 0; col<boardSize; col++) {
-      queueEntry entry;
-      entry.numLetters = 0;
-      entry.usedLetters = 0;
-      entry.letters = NULL;
-      entry.currentDict = dict;
-      addToQueueIfValid(&queue, entry, row, col, boardSize, board);
-    }
-  }
-
-  /* Process the queue */
-  const int directions[][2] = {{-1, -1}, {-1, 0}, {-1, 1},
-                               { 0, -1},          { 0, 1},
-                               { 1, -1}, { 1, 0}, { 1, 1}};
-  const int numDirections = sizeof(directions)/sizeof(*directions);
-  while(queue.head) {
-    queueEntry entry = popQueueEntry(&queue);
-    if(trieNode_isWord(entry.currentDict)) {
-      addWord(&words, entry.letters);
-    }
-
-    for(int i=0; i<numDirections; i++) {
-      int row = entry.currentIndex / boardSize + directions[i][0];
-      int col = entry.currentIndex % boardSize + directions[i][1];
-      addToQueueIfValid(&queue, entry, row, col, boardSize, board);
+      int index = row * boardSize + col;
+      _solveBoard(trieNode_at(dict, board[index]), board, boardSize, NULL, 
+                  one << index, index, &words);
     }
   }
   return words;
