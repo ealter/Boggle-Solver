@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   unsigned minWordLength = boardSize <= 4 ? 3 : 4;
   assert(boardSize * boardSize == numLetters);
   wordList words = solveBoard(dict, letters, boardSize);
-  trieNode_free(dict);
+  //trieNode_free(dict); //Uncomment to stop leaking memory
   printf("There are %d words\n", words.numWords);
   assert(words.words);
   for(unsigned i=0; i<words.numWords; i++) {
