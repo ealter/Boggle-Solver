@@ -1,6 +1,6 @@
 #include "trie.h"
 #include "boggle.h"
-#include "getline.h"
+#include "getlineBoggle.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -28,7 +28,7 @@ trieNode *makeDictionary(FILE *fp)
   trieNode *dict = trieNode_new();
 
   while(!feof(fp)) {
-    char *word = getline(fp);
+    char *word = getlineBoggle(fp);
     if(word) {
       char c;
       for(char *letter = word; (c = *letter) != '\0'; letter++) {
