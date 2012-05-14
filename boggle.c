@@ -146,12 +146,7 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
   while(queue.head) {
     queueEntry entry = popQueueEntry(&queue);
     if(trieNode_isWord(entry.currentDict)) {
-      char *letters = malloc(entry.numLetters + 1);
-      assert(letters);
-      entry.letters[entry.numLetters - 1] = board[entry.currentIndex];
-      strncpy(letters, entry.letters, entry.numLetters);
-      letters[entry.numLetters] = '\0';
-      addWord(&words, letters);
+      addWord(&words, entry.letters);
     }
 
     for(int i=0; i<numDirections; i++) {
