@@ -117,3 +117,15 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
   }
   return words;
 }
+
+void removeQUs(char *board) {
+  int i=0, shift=0;
+  for(char c; (c = board[i]) != '\0'; i++) {
+    board[i - shift] = c;
+    if(c == 'q' && board[i + 1] == 'u') {
+      shift++;
+      i++;
+    }
+  }
+  board[i - shift] = '\0';
+}

@@ -40,6 +40,10 @@ void trieNode_add(T *trie, char *word)
   for(;(c = *word) != '\0' && c != '\n'; word++) {
     if(!islower(c))
       return;
+    if(c == 'q') {
+      if(*(++word) != 'u')
+        return;
+    }
     trieNode *node = trie->nodes[c - 'a'];
     if(!node) {
       node = trieNode_new();

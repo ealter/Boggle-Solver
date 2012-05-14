@@ -20,4 +20,6 @@ extern trieNode *makeDictionary(FILE *fp);
  * Precondition: 1 <= boardSize <= 8 */
 extern wordList solveBoard(trieNode *dict, char *letters, unsigned boardSize);
 
+extern void removeQUs(char *board);
+
 #endif

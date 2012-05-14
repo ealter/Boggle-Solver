@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
   puts("Got dictionary\n");
   assert(dict);
   char *letters = argv[1];
+  removeQUs(letters);
   int numLetters = strlen(letters);
   int boardSize = sqrt(numLetters);
   unsigned minWordLength = boardSize <= 4 ? 3 : 4;
@@ -26,8 +27,14 @@ int main(int argc, char *argv[])
   assert(words.words);
   for(unsigned i=0; i<words.numWords; i++) {
     char *word = words.words[i];
-    if(strlen(word) >= minWordLength)
-      puts(word);
+    if(strlen(word) >= minWordLength) {
+      char c;
+      for(;(c = *word) != '\0'; word++) {
+        putchar(c);
+        if(c == 'q') putchar('u');
+      }
+      putchar('\n');
+    }
   }
   for(unsigned i=0; i<words.numWords; i++)
     free(words.words[i]);
