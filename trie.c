@@ -9,6 +9,8 @@
 struct T {
   T* nodes[26];
   T* parent;
+  char c; /* The letter associated with this node. If parent = null, then c
+             should be the null terminator. */
   bool isWord;
 };
 
@@ -23,8 +25,10 @@ T* trieNode_put(T *parent, T *child, char letter)
   assert(parent);
   assert(islower(letter));
   parent->nodes[letter - 'a'] = child;
-  if(child)
+  if(child) {
     child->parent = parent;
+    child->c = letter;
+  }
   return child;
 }
 
@@ -53,6 +57,7 @@ void trieNode_add(T *trie, char *word)
       node = trieNode_new();
       trie->nodes[c - 'a'] = node;
       node->parent = trie;
+      node->c = c;
     }
     trie = node;
   }
@@ -70,16 +75,7 @@ char *trieNode_toString(T *trie)
   assert(str);
   int i = length - 1;
   for(T *t = trie; i>=0; i--, t=t->parent) {
-    char c = ' ';
-    /* Find out which character this node is associated with */
-    for(int j=0; j<26; j++) {
-      if(t->parent->nodes[j] == t) {
-        c = j + 'a';
-        break;
-      }
-      assert(j != 26); //make sure a letter was found
-    }
-    str[i] = c;
+    str[i] = t->c;
   }
   str[length - 1] = '\0';
   return str;
