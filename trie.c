@@ -8,6 +8,7 @@
 #define T trieNode
 struct T {
   T* nodes[26];
+  T* parent;
   bool isWord;
 };
 
@@ -22,6 +23,8 @@ T* trieNode_put(T *parent, T *child, char letter)
   assert(parent);
   assert(islower(letter));
   parent->nodes[letter - 'a'] = child;
+  if(child)
+    child->parent = parent;
   return child;
 }
 
@@ -37,6 +40,7 @@ T* trieNode_at(T* trie, char letter)
 void trieNode_add(T *trie, char *word)
 {
   char c;
+  assert(trie);
   for(;(c = *word) != '\0' && c != '\n'; word++) {
     if(!islower(c))
       return;
@@ -48,10 +52,37 @@ void trieNode_add(T *trie, char *word)
     if(!node) {
       node = trieNode_new();
       trie->nodes[c - 'a'] = node;
+      node->parent = trie;
     }
     trie = node;
   }
   trie->isWord = true;
+}
+
+char *trieNode_toString(T *trie)
+{
+  if(!trie)
+    return NULL;
+  /* Get the length of the string */
+  int length = -1;
+  for(T *t = trie; t != NULL; t=t->parent, length++);
+  char *str = malloc((length + 1) + sizeof(*str));
+  assert(str);
+  int i = length - 1;
+  for(T *t = trie; i>=0; i--, t=t->parent) {
+    char c = ' ';
+    /* Find out which character this node is associated with */
+    for(int j=0; j<26; j++) {
+      if(t->parent->nodes[j] == t) {
+        c = j + 'a';
+        break;
+      }
+      assert(j != 26); //make sure a letter was found
+    }
+    str[i] = c;
+  }
+  str[length - 1] = '\0';
+  return str;
 }
 
 bool trieNode_isWord(T *trie)

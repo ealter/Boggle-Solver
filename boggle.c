@@ -52,30 +52,23 @@ static inline bool isValidMove(int row, int col, int boardSize,
 }
 
 static void _solveBoard(trieNode *currentDict, const char *board, unsigned boardSize,
-                        const char *prefix, uint64_t usedLetters, int currentIndex,
-                        wordList *words)
+                        uint64_t usedLetters, int currentIndex, wordList *words)
 {
   if(!currentDict)
     return;
   assert(board && words);
-  int numPrefixLetters = prefix ? strlen(prefix) : 0;
-  char *letters = malloc((numPrefixLetters + 2) * sizeof(*letters));
-  if(prefix)
-    strcpy(letters, prefix);
-  letters[numPrefixLetters] = board[currentIndex];
-  letters[numPrefixLetters + 1] = '\0';
 
   const uint64_t one = 1;
   int row, col, index;
   trieNode *dict;
 #define MOVE(deltaRow, deltaCol)                                   \
-      row = currentIndex / boardSize + deltaRow;               \
-      col = currentIndex % boardSize + deltaCol;               \
-      index = row * boardSize + col;                           \
-      if(isValidMove(row, col, boardSize, usedLetters)) {   \
-        dict = trieNode_at(currentDict, board[index]);   \
+      row = currentIndex / boardSize + deltaRow;                   \
+      col = currentIndex % boardSize + deltaCol;                   \
+      index = row * boardSize + col;                               \
+      if(isValidMove(row, col, boardSize, usedLetters)) {          \
+        dict = trieNode_at(currentDict, board[index]);             \
         if(dict) {                                                 \
-          _solveBoard(dict, board, boardSize, letters,             \
+          _solveBoard(dict, board, boardSize,                      \
                       usedLetters | (one << index), index, words); \
         }                                                          \
       }
@@ -89,10 +82,7 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
   MOVE( 1, 1);
 
   if(trieNode_isWord(currentDict)) {
-    addWord(words, letters);
-  }
-  else {
-    free(letters);
+    addWord(words, trieNode_toString(currentDict));
   }
 }
 
@@ -111,7 +101,7 @@ wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
   for(unsigned row = 0; row<boardSize; row++) {
     for(unsigned col = 0; col<boardSize; col++) {
       int index = row * boardSize + col;
-      _solveBoard(trieNode_at(dict, board[index]), board, boardSize, NULL, 
+      _solveBoard(trieNode_at(dict, board[index]), board, boardSize,
                   one << index, index, &words);
     }
   }
