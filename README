@@ -1,0 +1,5 @@
+Created by Eliot Alter (except for the readline module)
+
+This program takes in a dictionary of words (where valid, non-proper words are
+in lower case) and a board in row-major order and then outputs a list of
+solutions.
