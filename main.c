@@ -13,6 +13,22 @@ static inline void freeWordList(wordList words)
   free(words.words);
 }
 
+static void printWordList(wordList words, unsigned minWordLength)
+{
+  assert(words.words);
+  for(unsigned i=0; i<words.numWords; i++) {
+    char *word = words.words[i];
+    if(strlen(word) >= minWordLength) {
+      char c;
+      for(;(c = *word) != '\0'; word++) {
+        putchar(c);
+        if(c == 'q') putchar('u');
+      }
+      putchar('\n');
+    }
+  }
+}
+
 int main(int argc, char *argv[])
 {
   if(argc != 2) {
@@ -30,18 +46,7 @@ int main(int argc, char *argv[])
   wordList words = solveBoard(dict, letters, boardSize);
   //trieNode_free(dict); //Uncomment to stop leaking memory
   printf("There are %d words\n", words.numWords);
-  assert(words.words);
-  for(unsigned i=0; i<words.numWords; i++) {
-    char *word = words.words[i];
-    if(strlen(word) >= minWordLength) {
-      char c;
-      for(;(c = *word) != '\0'; word++) {
-        putchar(c);
-        if(c == 'q') putchar('u');
-      }
-      putchar('\n');
-    }
-  }
+  printWordList(words, minWordLength);
   freeWordList(words);
   return 0;
 }
