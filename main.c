@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
     return 1;
   }
   trieNode *dict = makeDictionary(stdin);
-  puts("Got dictionary\n");
   assert(dict);
   char *letters = argv[1];
   removeQUs(letters);
@@ -28,13 +27,7 @@ int main(int argc, char *argv[])
   int boardSize = sqrt(numLetters);
   unsigned minWordLength = boardSize <= 4 ? 3 : 4;
   assert(boardSize * boardSize == numLetters);
-  wordList words;
-  words.words = NULL;
-  for(int i=0; i<500; i++) {
-    if(words.words)
-      freeWordList(words);
-    words = solveBoard(dict, letters, boardSize);
-  }
+  wordList words = solveBoard(dict, letters, boardSize);
   //trieNode_free(dict); //Uncomment to stop leaking memory
   printf("There are %d words\n", words.numWords);
   assert(words.words);
