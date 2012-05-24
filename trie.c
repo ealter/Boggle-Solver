@@ -76,7 +76,7 @@ char *trieNode_toString(T *trie)
   for(T *t = trie; i>=0; i--, t=t->parent) {
     str[i] = t->c;
   }
-  str[length - 1] = '\0';
+  str[length] = '\0';
   return str;
 }
 
