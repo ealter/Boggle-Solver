@@ -41,11 +41,9 @@ typedef uint64_t usedLetters; /* represents a bit array of letters used in the
                                  significant bit refers to the first entry in
                                  the letters array */
 
-static inline bool isValidMove(int row, int col, int boardSize,
-                               uint64_t usedLetters)
+static inline bool isValidMove(unsigned index, uint64_t usedLetters)
 {
   uint64_t one = 1;
-  int index = row * boardSize + col;
   return !(usedLetters & (one << index));
 }
 
@@ -59,13 +57,11 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
   const uint64_t one = 1;
   unsigned currentRow = currentIndex / boardSize;
   unsigned currentCol = currentIndex % boardSize;
-  int row, col, index;
+  unsigned index;
   trieNode *dict;
 #define MOVE(deltaRow, deltaCol)                                   \
-      row = currentRow + deltaRow;                                 \
-      col = currentCol + deltaCol;                                 \
       index = currentIndex + deltaCol + deltaRow * boardSize;      \
-      if(isValidMove(row, col, boardSize, usedLetters)) {          \
+      if(isValidMove(index, usedLetters)) {                        \
         dict = trieNode_at(currentDict, board[index]);             \
         if(dict) {                                                 \
           _solveBoard(dict, board, boardSize,                      \
