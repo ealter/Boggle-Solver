@@ -34,7 +34,6 @@ T* trieNode_put(T *parent, T *child, char letter)
 
 T* trieNode_at(T* trie, char letter)
 {
-  letter = tolower(letter);
   if(letter < 'a' || letter > 'z')
     return NULL;
   assert(trie);
