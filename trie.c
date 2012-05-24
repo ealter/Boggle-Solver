@@ -70,7 +70,7 @@ char *trieNode_toString(T *trie)
   /* Get the length of the string */
   int length = -1;
   for(T *t = trie; t != NULL; t=t->parent, length++);
-  char *str = malloc((length + 1) + sizeof(*str));
+  char *str = malloc((length + 1) * sizeof(*str));
   assert(str);
   int i = length - 1;
   for(T *t = trie; i>=0; i--, t=t->parent) {
