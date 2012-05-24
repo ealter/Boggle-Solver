@@ -46,9 +46,7 @@ static inline bool isValidMove(int row, int col, int boardSize,
 {
   uint64_t one = 1;
   int index = row * boardSize + col;
-  return (row >= 0) && (col >= 0) &&
-         (row < boardSize) && (col < boardSize) &&
-         !(usedLetters & (one << index));
+  return !(usedLetters & (one << index));
 }
 
 static void _solveBoard(trieNode *currentDict, const char *board, unsigned boardSize,
@@ -59,12 +57,14 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
   assert(board && words);
 
   const uint64_t one = 1;
+  unsigned currentRow = currentIndex / boardSize;
+  unsigned currentCol = currentIndex % boardSize;
   int row, col, index;
   trieNode *dict;
 #define MOVE(deltaRow, deltaCol)                                   \
-      row = currentIndex / boardSize + deltaRow;                   \
-      col = currentIndex % boardSize + deltaCol;                   \
-      index = row * boardSize + col;                               \
+      row = currentRow + deltaRow;                                 \
+      col = currentCol + deltaCol;                                 \
+      index = currentIndex + deltaCol + deltaRow * boardSize;      \
       if(isValidMove(row, col, boardSize, usedLetters)) {          \
         dict = trieNode_at(currentDict, board[index]);             \
         if(dict) {                                                 \
@@ -72,14 +72,30 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
                       usedLetters | (one << index), index, words); \
         }                                                          \
       }
-  MOVE(-1,-1);
-  MOVE(-1, 0);
-  MOVE(-1, 1);
-  MOVE( 0,-1);
-  MOVE( 0, 1);
-  MOVE( 1,-1);
-  MOVE( 1, 0);
-  MOVE( 1, 1);
+  if(currentRow != 0) {
+    if(currentCol != 0) {
+      MOVE(-1,-1);
+    }
+    MOVE(-1, 0);
+    if(currentCol + 1 < boardSize) {
+      MOVE(-1, 1);
+    }
+  }
+  if(currentCol > 0) {
+    MOVE( 0,-1);
+  }
+  if(currentCol + 1 < boardSize) {
+    MOVE( 0, 1);
+  }
+  if(currentRow + 1 < boardSize) {
+    if(currentCol != 0) {
+      MOVE( 1,-1);
+    }
+    MOVE( 1, 0);
+    if(currentCol + 1 < boardSize) {
+      MOVE( 1, 1);
+    }
+  }
 
   if(trieNode_isWord(currentDict)) {
     addWord(words, trieNode_toString(currentDict));
