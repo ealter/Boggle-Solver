@@ -131,3 +131,4 @@ void removeQUs(char *board) {
   }
   board[i - shift] = '\0';
 }
+

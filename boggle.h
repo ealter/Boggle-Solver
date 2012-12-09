@@ -7,7 +7,7 @@
 typedef struct wordList {
   unsigned arraySize; /* The size of the words array */
   unsigned numWords;  /* The number of non-null entriees in the words array */
-	char **words;  /* The list of words. Invariant: A word is null iff all of the
+  char **words;  /* The list of words. Invariant: A word is null iff all of the
                     words afterwards are also null */
 } wordList;
 
