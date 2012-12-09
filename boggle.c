@@ -91,7 +91,8 @@ static void _solveBoard(trieNodeIdentifier currentDict, const char *board, unsig
     }
   }
 
-  if(trieNode_isWord(currentDict)) {
+  if(trieNode_isWord(currentDict) && !trieNode_isMarked(currentDict)) {
+    trieNode_mark(currentDict);
     addWord(words, trieNode_toString(currentDict));
   }
 }

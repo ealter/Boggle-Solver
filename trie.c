@@ -14,6 +14,7 @@ typedef struct trieNode {
   char c; /* The letter associated with this node. If parent = null, then c
              should be the null terminator. */
   bool isWord;
+  bool mark;
 } trieNode;
 
 //Use a static array of trieNodes so that we don't have to call malloc a lot
@@ -47,22 +48,6 @@ T trieNode_new()
   //T* trie = calloc(1, sizeof(*trie));
   //assert(trie);
   //return trie;
-}
-
-T trieNode_put(T parentNum, T childNum, char letter)
-{
-  assert(parentNum < nodesLength);
-  trieNode *parent = getNode(parentNum);
-  assert(parent);
-  assert(islower(letter));
-  parent->nodes[letter - 'a'] = childNum;
-  if(childNum) {
-    assert(childNum < nodesLength);
-    trieNode *child = getNode(childNum);
-    child->parent = parentNum;
-    child->c = letter;
-  }
-  return childNum;
 }
 
 T trieNode_at(T trieNum, char letter)
@@ -136,3 +121,16 @@ void trieNode_freeAll()
   nodesLength = 0;
   nodesSize = 0;
 }
+
+void trieNode_mark(T trieNum)
+{
+  assert(trieNum && trieNum < nodesLength);
+  getNode(trieNum)->mark = true;
+}
+
+bool trieNode_isMarked(T trieNum)
+{
+  assert(trieNum && trieNum < nodesLength);
+  return getNode(trieNum)->mark;
+}
+

@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   assert(boardSize * boardSize == numLetters);
   wordList words = solveBoard(dict, letters, boardSize);
   trieNode_freeAll();
-  printf("There are %d words\n", words.numWords);
+  fprintf(stderr, "There are %d words\n", words.numWords);
   printWordList(words, minWordLength);
   freeWordList(words);
   return 0;
