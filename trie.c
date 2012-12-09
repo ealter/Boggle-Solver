@@ -25,7 +25,6 @@ static unsigned nodesSize   = 0; //The size of the nodes array
 #define NULL_TRIE 0
 
 static inline trieNode *getNode(T n) {
-  assert(n < nodesLength);
   return nodes + n;
 }
 
@@ -39,9 +38,9 @@ T trieNode_new()
   }
   if(nodesLength >= nodesSize) {
     nodesSize *= 2;
-    nodes = realloc(nodes, nodesSize * sizeof(*nodes)); //TODO: this breaks stuff.
+    nodes = realloc(nodes, nodesSize * sizeof(*nodes));
     assert(nodes);
-    memset(nodes + nodesLength, 0, sizeof(*nodes) * (nodesSize - nodesLength)); //Might have off-by-one
+    memset(nodes + nodesLength, 0, sizeof(*nodes) * (nodesSize - nodesLength));
   }
 
   return nodesLength++;
@@ -52,11 +51,13 @@ T trieNode_new()
 
 T trieNode_put(T parentNum, T childNum, char letter)
 {
+  assert(parentNum < nodesLength);
   trieNode *parent = getNode(parentNum);
   assert(parent);
   assert(islower(letter));
   parent->nodes[letter - 'a'] = childNum;
   if(childNum) {
+    assert(childNum < nodesLength);
     trieNode *child = getNode(childNum);
     child->parent = parentNum;
     child->c = letter;
@@ -69,6 +70,7 @@ T trieNode_at(T trieNum, char letter)
   if(letter < 'a' || letter > 'z')
     return NULL_TRIE;
   assert(trieNum);
+  assert(trieNum < nodesLength);
   trieNode *trie = getNode(trieNum);
   return trie->nodes[letter - 'a'];
 }
@@ -76,6 +78,7 @@ T trieNode_at(T trieNum, char letter)
 void trieNode_add(T trieNum, char *word)
 {
   char c;
+  assert(trieNum < nodesLength);
   trieNode *trie = getNode(trieNum);
   assert(trie);
   for(;(c = *word) != '\0' && c != '\n'; word++) {
@@ -105,6 +108,7 @@ char *trieNode_toString(T trieNum)
     return NULL;
   /* Get the length of the string */
   int length = -1;
+  assert(trieNum < nodesLength);
   for(T t = trieNum; t != NULL_TRIE; t=getNode(t)->parent, length++){}
   char *str = malloc((length + 1) * sizeof(*str));
   assert(str);
@@ -119,6 +123,7 @@ char *trieNode_toString(T trieNum)
 bool trieNode_isWord(T trie)
 {
   assert(trie);
+  assert(trie < nodesLength);
   return getNode(trie)->isWord;
 }
 
