@@ -23,9 +23,9 @@ static void addWord(wordList *words, char *word)
   words->words[words->numWords - 1] = word;
 }
 
-trieNode *makeDictionary(FILE *fp)
+trieNodeIdentifier makeDictionary(FILE *fp)
 {
-  trieNode *dict = trieNode_new();
+  trieNodeIdentifier dict = trieNode_new();
 
   while(!feof(fp)) {
     char *word = getlineBoggle(fp);
@@ -47,7 +47,7 @@ static inline bool isValidMove(unsigned index, uint64_t usedLetters)
   return !(usedLetters & (one << index));
 }
 
-static void _solveBoard(trieNode *currentDict, const char *board, unsigned boardSize,
+static void _solveBoard(trieNodeIdentifier currentDict, const char *board, unsigned boardSize,
                         uint64_t usedLetters, int currentIndex, wordList *words)
 {
   if(!currentDict)
@@ -58,7 +58,7 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
   unsigned currentRow = currentIndex / boardSize;
   unsigned currentCol = currentIndex % boardSize;
   unsigned index;
-  trieNode *dict;
+  trieNodeIdentifier dict;
 #define MOVE(deltaRow, deltaCol)                                   \
       index = currentIndex + deltaCol + deltaRow * boardSize;      \
       if(isValidMove(index, usedLetters)) {                        \
@@ -98,7 +98,7 @@ static void _solveBoard(trieNode *currentDict, const char *board, unsigned board
   }
 }
 
-wordList solveBoard(trieNode *dict, char *board, unsigned boardSize)
+wordList solveBoard(trieNodeIdentifier dict, char *board, unsigned boardSize)
 {
   assert(dict && board);
   assert(strlen(board) == boardSize * boardSize);
