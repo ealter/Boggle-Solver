@@ -66,10 +66,8 @@ void trieNode_add(T trieNum, char *word)
   assert(trieNum < nodesLength);
   trieNode *trie = getNode(trieNum);
   assert(trie);
-  for(;(c = *word) != '\0' && c != '\n'; word++) {
+  for(;islower(c = *word); word++) {
     trie = getNode(trieNum);
-    if(!islower(c))
-      return;
     if(c == 'q') {
       if(*(++word) != 'u')
         return;
@@ -84,7 +82,8 @@ void trieNode_add(T trieNum, char *word)
     }
     trieNum = nodeNum;
   }
-  getNode(trieNum)->isWord = true;
+  if(c == '\n' || c == '\0')
+    getNode(trieNum)->isWord = true;
 }
 
 char *trieNode_toString(T trieNum)
