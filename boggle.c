@@ -27,11 +27,9 @@ trieNodeIdentifier makeDictionary(FILE *fp)
 {
   trieNodeIdentifier dict = trieNode_new();
 
-  while(!feof(fp)) {
-    char *word = getlineBoggle(fp);
-    if(word) {
-      trieNode_add(dict, word);
-    }
+  char *word;
+  while((word = getlineBoggle(fp)) != NULL) {
+    trieNode_add(dict, word);
   }
   return dict;
 }
