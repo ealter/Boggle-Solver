@@ -34,17 +34,15 @@ trieNodeIdentifier makeDictionary(FILE *fp)
   return dict;
 }
 
-typedef uint64_t usedLetters; /* represents a bit array of letters used in the
-                                 current boggle word. 0 means unused. The least
-                                 significant bit refers to the first entry in
-                                 the letters array */
-
 static inline bool isValidMove(unsigned index, uint64_t usedLetters)
 {
   uint64_t one = 1;
   return !(usedLetters & (one << index));
 }
 
+/* usedLetters represents a bit array of letters used in the current boggle
+ * word. 0 means unused. The least significant bit refers to the
+   first entry in the letters array */
 static void _solveBoard(trieNodeIdentifier currentDict, const char *board, unsigned boardSize,
                         uint64_t usedLetters, int currentIndex, wordList *words)
 {
