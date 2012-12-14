@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h> //for debugging
+#include <stdint.h>
 
 #define T trieNodeIdentifier
 
@@ -14,12 +15,13 @@ typedef struct trieNode {
   char c; /* The letter associated with this node. If parent = null, then c
              should be the null terminator. */
   bool isWord;
-  bool mark;
 } trieNode;
 
 //Use a static array of trieNodes so that we don't have to call malloc a lot
-#define INITIAL_NODES_ARRAY_SIZE 1000
+#define INITIAL_NODES_ARRAY_SIZE 1024 //Should be a multiple of 32
 static trieNode *nodes = NULL;   //The 0th element is unused.
+static uint32_t *marks = NULL;   //A parallel array that says whether a node is marked
+#define MARK_BITS (8 * sizeof(*marks))
 static unsigned nodesLength = 0; //The number of used elements in the nodes array
 static unsigned nodesSize   = 0; //The size of the nodes array
 
@@ -34,7 +36,8 @@ T trieNode_new()
   if(!nodes) {
     nodesSize = INITIAL_NODES_ARRAY_SIZE;
     nodes = calloc(nodesSize, sizeof(*nodes));
-    assert(nodes);
+    marks = calloc(nodesSize/MARK_BITS, sizeof(*marks));
+    assert(nodes && marks);
     nodesLength++; //Don't use the 0th element
   }
   if(nodesLength >= nodesSize) {
@@ -42,12 +45,13 @@ T trieNode_new()
     nodes = realloc(nodes, nodesSize * sizeof(*nodes));
     assert(nodes);
     memset(nodes + nodesLength, 0, sizeof(*nodes) * (nodesSize - nodesLength));
+    marks = realloc(marks, nodesSize * sizeof(*marks) / MARK_BITS);
+    assert(marks);
+    memset(marks + nodesLength/MARK_BITS, 0,
+          (nodesSize - nodesLength) * sizeof(*marks) / MARK_BITS);
   }
 
   return nodesLength++;
-  //T* trie = calloc(1, sizeof(*trie));
-  //assert(trie);
-  //return trie;
 }
 
 T trieNode_at(T trieNum, char letter)
@@ -124,12 +128,17 @@ void trieNode_freeAll()
 void trieNode_mark(T trieNum)
 {
   assert(trieNum && trieNum < nodesLength);
-  getNode(trieNum)->mark = true;
+  marks[trieNum/MARK_BITS] |= (1 << (trieNum % MARK_BITS));
 }
 
 bool trieNode_isMarked(T trieNum)
 {
   assert(trieNum && trieNum < nodesLength);
-  return getNode(trieNum)->mark;
+  return marks[trieNum/MARK_BITS] & (1 << (trieNum % MARK_BITS));
+}
+
+void trieNode_clearAllMarks()
+{
+  memset(marks, 0, nodesLength * sizeof(*marks)/MARK_BITS);
 }
 

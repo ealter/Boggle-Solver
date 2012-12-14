@@ -15,6 +15,7 @@ extern void  trieNode_freeAll(); //Frees all trie Nodes
 
 extern void trieNode_mark(T trie);
 extern bool trieNode_isMarked(T trie);
+extern void trieNode_clearAllMarks();
 
 #undef T
 #endif
