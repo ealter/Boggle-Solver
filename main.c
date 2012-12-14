@@ -13,6 +13,31 @@ static inline void freeWordList(wordList words)
   free(words.words);
 }
 
+static inline int pointValue(char *word, unsigned minWordLength)
+{
+  if(strlen(word) >= minWordLength) {
+    switch(strlen(word)) {
+      case 3:
+      case 4: return 1;
+      case 5: return 2;
+      case 6: return 3;
+      case 7: return 5;
+      default: return 10;
+    }
+  }
+  return 0;
+}
+
+static int totalPoints(wordList words, unsigned minWordLength)
+{
+  assert(words.words);
+  int points = 0;
+  for(unsigned i=0; i<words.numWords; i++) {
+    points += pointValue(words.words[i], minWordLength);
+  }
+  return points;
+}
+
 static void printWordList(wordList words, unsigned minWordLength)
 {
   assert(words.words);
@@ -46,6 +71,7 @@ int main(int argc, char *argv[])
   wordList words = solveBoard(dict, letters, boardSize);
   trieNode_freeAll();
   fprintf(stderr, "There are %d words\n", words.numWords);
+  fprintf(stderr, "There are %d points\n", totalPoints(words, minWordLength));
   printWordList(words, minWordLength);
   freeWordList(words);
   return 0;
